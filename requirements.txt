@@ -1,0 +1,4 @@
+ python-binance
+ ta
+ pandas
+ mpl_finance

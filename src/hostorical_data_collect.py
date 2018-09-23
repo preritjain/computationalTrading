@@ -4,8 +4,10 @@
 
 from binance.client import Client
 import time
+import json
 from timeUtil import date_to_milliseconds, interval_to_milliseconds
-
+import Binance.config as config
+from plots.ta_plots import *
 
 def get_historical_klines(symbol, interval, start_str, end_str=None):
     """Get Historical Klines from Binance
@@ -80,4 +82,58 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
 
     return output_data
 
+def saveToCSV(symbol, start, end, klines):
+    with open('../data/Binance_{}_{}-{}.csv'.format(symbol, start, end), 'w') as f:
+        f.write('Time, Open, High, Low, Close, Volume\n')
+        
+        for kline in klines:
+            #print(kline)
+            time1 = int(kline[0])
+            open1 = float(kline[1])
+            Low = float(kline[3])
+            High = float(kline[2])
+            Close = float(kline[4])
+            Volume = float(kline[5])
+            format_kline = "{}, {}, {}, {}, {}, {}\n".format(time1, open1, High, Low, Close, Volume)
+            f.write(format_kline)
+
+
+def saveToJSON(symbol, interval, start, end, Klines) :
+    # open a file with filename including symbol, interval and start and end converted to milliseconds
+    with open(
+            "Binance_{}_{}_{}-{}.json".format(
+                symbol,
+                interval,
+                date_to_milliseconds(start),
+                date_to_milliseconds(end)
+            ),
+            'w'  # set file write mode
+    ) as f:
+        f.write(json.dumps(Klines))
+        
+        
+        
+        
+# fp = open('key.json','r')
+# keys = json.load(fp)
+# 
+client = Client(config.api_key, config.api_secret)
+# # get market depth
+# client = Client("", "")
 print(interval_to_milliseconds(Client.KLINE_INTERVAL_1MINUTE))
+klines = client.get_historical_klines("ETHUSDT", Client.KLINE_INTERVAL_30MINUTE, "1 Sep, 2018", "23 Sep, 2018")
+symbol = 'ETHUSDT'
+interval = Client.KLINE_INTERVAL_30MINUTE
+start = "1 Sep, 2018"
+end = "23 Sep, 2018"
+plotMovAvg(symbol, start, end, klines)
+# saveToCSV(symbol, start, end, klines)
+# #print(klines)
+# # open a file with filename including symbol, interval and start and end converted to milliseconds
+# with open(
+#     "../data/Binance_{}_{}_{}-{}.json".format(
+#        "ETHUSDT", Client.KLINE_INTERVAL_30MINUTE, date_to_milliseconds("1 Sep, 2018"), date_to_milliseconds("23 Sep, 2018")),
+#     'w' # set file write mode
+# ) as f:
+#     f.write(json.dumps(klines))
+print('done')

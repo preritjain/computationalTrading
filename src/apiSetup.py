@@ -19,4 +19,3 @@ print(depth)
 
 fees = client.get_trade_fee()
 print(fees)
-print('others')
